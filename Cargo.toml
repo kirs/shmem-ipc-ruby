@@ -1,0 +1,3 @@
+[workspace]
+members = ["ext/shmem_ipc"]
+resolver = "2"
