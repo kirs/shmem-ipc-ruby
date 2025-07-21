@@ -10,7 +10,5 @@ crate-type = ["cdylib"]
 shmem-ipc = "0.3.0"
 rb-sys = "0.9"
 
-rb-sys-env = "0.1"
-
 [features]
 default = []
