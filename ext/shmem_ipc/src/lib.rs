@@ -187,6 +187,10 @@ unsafe extern "C" fn float_sender_get_fds(_self: VALUE) -> VALUE {
 }
 
 unsafe extern "C" fn float_sender_send_data(_self: VALUE, ruby_array: VALUE) -> VALUE {
+    // Debug: Always return a simple hash to test if function is being called
+    let result = rb_hash_new();
+    rb_hash_aset(result, rb_str_new_cstr(b"debug\0".as_ptr() as *const i8), rb_str_new_cstr(b"function_called\0".as_ptr() as *const i8));
+    return result;
     let wrapper = get_float_sender_wrapper(_self);
     if wrapper.is_null() {
         rb_raise(rb_eRuntimeError, b"Invalid float sender object\0".as_ptr() as *const i8);
