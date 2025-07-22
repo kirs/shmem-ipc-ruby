@@ -827,7 +827,7 @@ pub unsafe extern "C" fn Init_shmem_ipc() {
     rb_define_singleton_method(FLOAT_SENDER_CLASS, b"new\0".as_ptr() as *const i8, Some(float_sender_new as unsafe extern "C" fn()), 1);
     rb_define_singleton_method(FLOAT_SENDER_CLASS, b"open\0".as_ptr() as *const i8, Some(float_sender_open as unsafe extern "C" fn()), 4);
     rb_define_method(FLOAT_SENDER_CLASS, b"get_fds\0".as_ptr() as *const i8, Some(float_sender_get_fds as unsafe extern "C" fn()), 0);
-    rb_define_method(FLOAT_SENDER_CLASS, b"send_data\0".as_ptr() as *const i8, Some(float_sender_send_data as *const ())), 1);
+    rb_define_method(FLOAT_SENDER_CLASS, b"send_data\0".as_ptr() as *const i8, Some(float_sender_send_data as unsafe extern "C" fn()), 1);
     
     // Define FloatReceiver class
     FLOAT_RECEIVER_CLASS = rb_define_class_under(SHMEM_IPC_MODULE, b"FloatReceiver\0".as_ptr() as *const i8, rb_cObject);
