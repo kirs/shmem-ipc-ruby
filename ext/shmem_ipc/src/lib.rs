@@ -824,43 +824,43 @@ pub unsafe extern "C" fn Init_shmem_ipc() {
     
     // Define FloatSender class
     FLOAT_SENDER_CLASS = rb_define_class_under(SHMEM_IPC_MODULE, b"FloatSender\0".as_ptr() as *const i8, rb_cObject);
-    rb_define_singleton_method(FLOAT_SENDER_CLASS, b"new\0".as_ptr() as *const i8, Some(std::mem::transmute(float_sender_new as *const ())), 1);
-    rb_define_singleton_method(FLOAT_SENDER_CLASS, b"open\0".as_ptr() as *const i8, Some(std::mem::transmute(float_sender_open as *const ())), 4);
-    rb_define_method(FLOAT_SENDER_CLASS, b"get_fds\0".as_ptr() as *const i8, Some(std::mem::transmute(float_sender_get_fds as *const ())), 0);
-    rb_define_method(FLOAT_SENDER_CLASS, b"send_data\0".as_ptr() as *const i8, Some(std::mem::transmute(float_sender_send_data as *const ())), 1);
+    rb_define_singleton_method(FLOAT_SENDER_CLASS, b"new\0".as_ptr() as *const i8, Some(std::mem::transmute(float_sender_new as unsafe extern "C" fn(VALUE, VALUE) -> VALUE)), 1);
+    rb_define_singleton_method(FLOAT_SENDER_CLASS, b"open\0".as_ptr() as *const i8, Some(std::mem::transmute(float_sender_open as unsafe extern "C" fn(VALUE, VALUE, VALUE, VALUE, VALUE) -> VALUE)), 4);
+    rb_define_method(FLOAT_SENDER_CLASS, b"get_fds\0".as_ptr() as *const i8, Some(std::mem::transmute(float_sender_get_fds as unsafe extern "C" fn(VALUE) -> VALUE)), 0);
+    rb_define_method(FLOAT_SENDER_CLASS, b"send_data\0".as_ptr() as *const i8, Some(std::mem::transmute(float_sender_send_data as unsafe extern "C" fn(VALUE, VALUE) -> VALUE)), 1);
     
     // Define FloatReceiver class
     FLOAT_RECEIVER_CLASS = rb_define_class_under(SHMEM_IPC_MODULE, b"FloatReceiver\0".as_ptr() as *const i8, rb_cObject);
-    rb_define_singleton_method(FLOAT_RECEIVER_CLASS, b"new\0".as_ptr() as *const i8, Some(std::mem::transmute(float_receiver_new as *const ())), 1);
-    rb_define_singleton_method(FLOAT_RECEIVER_CLASS, b"open\0".as_ptr() as *const i8, Some(std::mem::transmute(float_receiver_open as *const ())), 4);
-    rb_define_method(FLOAT_RECEIVER_CLASS, b"get_fds\0".as_ptr() as *const i8, Some(std::mem::transmute(float_receiver_get_fds as *const ())), 0);
-    rb_define_method(FLOAT_RECEIVER_CLASS, b"receive_data\0".as_ptr() as *const i8, Some(std::mem::transmute(float_receiver_receive_data as *const ())), 0);
+    rb_define_singleton_method(FLOAT_RECEIVER_CLASS, b"new\0".as_ptr() as *const i8, Some(std::mem::transmute(float_receiver_new as unsafe extern "C" fn(VALUE, VALUE) -> VALUE)), 1);
+    rb_define_singleton_method(FLOAT_RECEIVER_CLASS, b"open\0".as_ptr() as *const i8, Some(std::mem::transmute(float_receiver_open as unsafe extern "C" fn(VALUE, VALUE, VALUE, VALUE, VALUE) -> VALUE)), 4);
+    rb_define_method(FLOAT_RECEIVER_CLASS, b"get_fds\0".as_ptr() as *const i8, Some(std::mem::transmute(float_receiver_get_fds as unsafe extern "C" fn(VALUE) -> VALUE)), 0);
+    rb_define_method(FLOAT_RECEIVER_CLASS, b"receive_data\0".as_ptr() as *const i8, Some(std::mem::transmute(float_receiver_receive_data as unsafe extern "C" fn(VALUE) -> VALUE)), 0);
     
     // Define IntegerSender class
     INTEGER_SENDER_CLASS = rb_define_class_under(SHMEM_IPC_MODULE, b"IntegerSender\0".as_ptr() as *const i8, rb_cObject);
-    rb_define_singleton_method(INTEGER_SENDER_CLASS, b"new\0".as_ptr() as *const i8, Some(std::mem::transmute(integer_sender_new as *const ())), 1);
-    rb_define_singleton_method(INTEGER_SENDER_CLASS, b"open\0".as_ptr() as *const i8, Some(std::mem::transmute(integer_sender_open as *const ())), 4);
-    rb_define_method(INTEGER_SENDER_CLASS, b"get_fds\0".as_ptr() as *const i8, Some(std::mem::transmute(integer_sender_get_fds as *const ())), 0);
-    rb_define_method(INTEGER_SENDER_CLASS, b"send_data\0".as_ptr() as *const i8, Some(std::mem::transmute(integer_sender_send_data as *const ())), 1);
+    rb_define_singleton_method(INTEGER_SENDER_CLASS, b"new\0".as_ptr() as *const i8, Some(std::mem::transmute(integer_sender_new as unsafe extern "C" fn(VALUE, VALUE) -> VALUE)), 1);
+    rb_define_singleton_method(INTEGER_SENDER_CLASS, b"open\0".as_ptr() as *const i8, Some(std::mem::transmute(integer_sender_open as unsafe extern "C" fn(VALUE, VALUE, VALUE, VALUE, VALUE) -> VALUE)), 4);
+    rb_define_method(INTEGER_SENDER_CLASS, b"get_fds\0".as_ptr() as *const i8, Some(std::mem::transmute(integer_sender_get_fds as unsafe extern "C" fn(VALUE) -> VALUE)), 0);
+    rb_define_method(INTEGER_SENDER_CLASS, b"send_data\0".as_ptr() as *const i8, Some(std::mem::transmute(integer_sender_send_data as unsafe extern "C" fn(VALUE, VALUE) -> VALUE)), 1);
     
     // Define IntegerReceiver class
     INTEGER_RECEIVER_CLASS = rb_define_class_under(SHMEM_IPC_MODULE, b"IntegerReceiver\0".as_ptr() as *const i8, rb_cObject);
-    rb_define_singleton_method(INTEGER_RECEIVER_CLASS, b"new\0".as_ptr() as *const i8, Some(std::mem::transmute(integer_receiver_new as *const ())), 1);
-    rb_define_singleton_method(INTEGER_RECEIVER_CLASS, b"open\0".as_ptr() as *const i8, Some(std::mem::transmute(integer_receiver_open as *const ())), 4);
-    rb_define_method(INTEGER_RECEIVER_CLASS, b"get_fds\0".as_ptr() as *const i8, Some(std::mem::transmute(integer_receiver_get_fds as *const ())), 0);
-    rb_define_method(INTEGER_RECEIVER_CLASS, b"receive_data\0".as_ptr() as *const i8, Some(std::mem::transmute(integer_receiver_receive_data as *const ())), 0);
+    rb_define_singleton_method(INTEGER_RECEIVER_CLASS, b"new\0".as_ptr() as *const i8, Some(std::mem::transmute(integer_receiver_new as unsafe extern "C" fn(VALUE, VALUE) -> VALUE)), 1);
+    rb_define_singleton_method(INTEGER_RECEIVER_CLASS, b"open\0".as_ptr() as *const i8, Some(std::mem::transmute(integer_receiver_open as unsafe extern "C" fn(VALUE, VALUE, VALUE, VALUE, VALUE) -> VALUE)), 4);
+    rb_define_method(INTEGER_RECEIVER_CLASS, b"get_fds\0".as_ptr() as *const i8, Some(std::mem::transmute(integer_receiver_get_fds as unsafe extern "C" fn(VALUE) -> VALUE)), 0);
+    rb_define_method(INTEGER_RECEIVER_CLASS, b"receive_data\0".as_ptr() as *const i8, Some(std::mem::transmute(integer_receiver_receive_data as unsafe extern "C" fn(VALUE) -> VALUE)), 0);
     
     // Define ByteSender class
     BYTE_SENDER_CLASS = rb_define_class_under(SHMEM_IPC_MODULE, b"ByteSender\0".as_ptr() as *const i8, rb_cObject);
-    rb_define_singleton_method(BYTE_SENDER_CLASS, b"new\0".as_ptr() as *const i8, Some(std::mem::transmute(byte_sender_new as *const ())), 1);
-    rb_define_singleton_method(BYTE_SENDER_CLASS, b"open\0".as_ptr() as *const i8, Some(std::mem::transmute(byte_sender_open as *const ())), 4);
-    rb_define_method(BYTE_SENDER_CLASS, b"get_fds\0".as_ptr() as *const i8, Some(std::mem::transmute(byte_sender_get_fds as *const ())), 0);
-    rb_define_method(BYTE_SENDER_CLASS, b"send_data\0".as_ptr() as *const i8, Some(std::mem::transmute(byte_sender_send_data as *const ())), 1);
+    rb_define_singleton_method(BYTE_SENDER_CLASS, b"new\0".as_ptr() as *const i8, Some(std::mem::transmute(byte_sender_new as unsafe extern "C" fn(VALUE, VALUE) -> VALUE)), 1);
+    rb_define_singleton_method(BYTE_SENDER_CLASS, b"open\0".as_ptr() as *const i8, Some(std::mem::transmute(byte_sender_open as unsafe extern "C" fn(VALUE, VALUE, VALUE, VALUE, VALUE) -> VALUE)), 4);
+    rb_define_method(BYTE_SENDER_CLASS, b"get_fds\0".as_ptr() as *const i8, Some(std::mem::transmute(byte_sender_get_fds as unsafe extern "C" fn(VALUE) -> VALUE)), 0);
+    rb_define_method(BYTE_SENDER_CLASS, b"send_data\0".as_ptr() as *const i8, Some(std::mem::transmute(byte_sender_send_data as unsafe extern "C" fn(VALUE, VALUE) -> VALUE)), 1);
     
     // Define ByteReceiver class
     BYTE_RECEIVER_CLASS = rb_define_class_under(SHMEM_IPC_MODULE, b"ByteReceiver\0".as_ptr() as *const i8, rb_cObject);
-    rb_define_singleton_method(BYTE_RECEIVER_CLASS, b"new\0".as_ptr() as *const i8, Some(std::mem::transmute(byte_receiver_new as *const ())), 1);
-    rb_define_singleton_method(BYTE_RECEIVER_CLASS, b"open\0".as_ptr() as *const i8, Some(std::mem::transmute(byte_receiver_open as *const ())), 4);
-    rb_define_method(BYTE_RECEIVER_CLASS, b"get_fds\0".as_ptr() as *const i8, Some(std::mem::transmute(byte_receiver_get_fds as *const ())), 0);
-    rb_define_method(BYTE_RECEIVER_CLASS, b"receive_data\0".as_ptr() as *const i8, Some(std::mem::transmute(byte_receiver_receive_data as *const ())), 0);
+    rb_define_singleton_method(BYTE_RECEIVER_CLASS, b"new\0".as_ptr() as *const i8, Some(std::mem::transmute(byte_receiver_new as unsafe extern "C" fn(VALUE, VALUE) -> VALUE)), 1);
+    rb_define_singleton_method(BYTE_RECEIVER_CLASS, b"open\0".as_ptr() as *const i8, Some(std::mem::transmute(byte_receiver_open as unsafe extern "C" fn(VALUE, VALUE, VALUE, VALUE, VALUE) -> VALUE)), 4);
+    rb_define_method(BYTE_RECEIVER_CLASS, b"get_fds\0".as_ptr() as *const i8, Some(std::mem::transmute(byte_receiver_get_fds as unsafe extern "C" fn(VALUE) -> VALUE)), 0);
+    rb_define_method(BYTE_RECEIVER_CLASS, b"receive_data\0".as_ptr() as *const i8, Some(std::mem::transmute(byte_receiver_receive_data as unsafe extern "C" fn(VALUE) -> VALUE)), 0);
 }
