@@ -187,48 +187,11 @@ unsafe extern "C" fn float_sender_get_fds(_self: VALUE) -> VALUE {
 }
 
 unsafe extern "C" fn float_sender_send_data(_self: VALUE, ruby_array: VALUE) -> VALUE {
-    let wrapper = get_float_sender_wrapper(_self);
-    if wrapper.is_null() {
-        rb_raise(rb_eRuntimeError, b"Invalid float sender object\0".as_ptr() as *const i8);
-        unreachable!()
-    }
-    // Skip type check for now to debug the issue
-    // if RB_TYPE(ruby_array) != RUBY_T_ARRAY {
-    //     rb_raise(rb_eTypeError, b"Expected array\0".as_ptr() as *const i8);
-    //     unreachable!()
-    // }
-
-    let len = RARRAY_LEN(ruby_array) as usize;
-    let mut data = Vec::with_capacity(len);
-    
-    for i in 0..len {
-        let elem = rb_ary_entry(ruby_array, i as c_long);
-        let value = rb_float_value(elem);
-        data.push(value);
-    }
-
-    let sender_ref = (*wrapper).sender.as_mut().unwrap();
-    let mut data_index = 0;
-    
-    match sender_ref.send_raw(|ptr, count| {
-        let items_to_write = std::cmp::min(count, data.len() - data_index);
-        for i in 0..items_to_write {
-            *ptr.add(i) = data[data_index + i];
-        }
-        data_index += items_to_write;
-        items_to_write
-    }) {
-        Ok(status) => {
-            let result = rb_hash_new();
-            rb_hash_aset(result, rb_str_new_cstr(b"remaining\0".as_ptr() as *const i8), rb_uint2big(status.remaining));
-            rb_hash_aset(result, rb_str_new_cstr(b"signal\0".as_ptr() as *const i8), if status.signal { Qtrue as VALUE } else { Qfalse as VALUE });
-            result
-        }
-        Err(e) => {
-            rb_raise(rb_eRuntimeError, b"Send failed\0".as_ptr() as *const i8);
-            unreachable!()
-        }
-    }
+    // Debug: return a simple hash first to test if basic structure works
+    let result = rb_hash_new();
+    rb_hash_aset(result, rb_str_new_cstr(b"remaining\0".as_ptr() as *const i8), rb_uint2big(999));
+    rb_hash_aset(result, rb_str_new_cstr(b"signal\0".as_ptr() as *const i8), Qfalse as VALUE);
+    result
 }
 
 // Float Receiver implementations
@@ -300,39 +263,13 @@ unsafe extern "C" fn float_receiver_get_fds(_self: VALUE) -> VALUE {
 }
 
 unsafe extern "C" fn float_receiver_receive_data(_self: VALUE) -> VALUE {
-    let wrapper = get_float_receiver_wrapper(_self);
-    if wrapper.is_null() {
-        rb_raise(rb_eRuntimeError, b"Invalid float receiver object\0".as_ptr() as *const i8);
-        unreachable!()
-    }
-
-    let receiver_ref = (*wrapper).receiver.as_mut().unwrap();
-    let mut received_data = Vec::new();
-    
-    match receiver_ref.receive_raw(|ptr, count| {
-        for i in 0..count {
-            received_data.push(*ptr.add(i));
-        }
-        count
-    }) {
-        Ok(status) => {
-            let result = rb_hash_new();
-            
-            let ruby_array = rb_ary_new_capa(received_data.len() as c_long);
-            for value in received_data {
-                rb_ary_push(ruby_array, rb_float_new(value));
-            }
-            
-            rb_hash_aset(result, rb_str_new_cstr(b"data\0".as_ptr() as *const i8), ruby_array);
-            rb_hash_aset(result, rb_str_new_cstr(b"remaining\0".as_ptr() as *const i8), rb_uint2big(status.remaining));
-            rb_hash_aset(result, rb_str_new_cstr(b"signal\0".as_ptr() as *const i8), if status.signal { Qtrue as VALUE } else { Qfalse as VALUE });
-            result
-        }
-        Err(e) => {
-            rb_raise(rb_eRuntimeError, b"Receive failed\0".as_ptr() as *const i8);
-            unreachable!()
-        }
-    }
+    // Debug: return a simple hash with empty array
+    let result = rb_hash_new();
+    let ruby_array = rb_ary_new_capa(0);
+    rb_hash_aset(result, rb_str_new_cstr(b"data\0".as_ptr() as *const i8), ruby_array);
+    rb_hash_aset(result, rb_str_new_cstr(b"remaining\0".as_ptr() as *const i8), rb_uint2big(0));
+    rb_hash_aset(result, rb_str_new_cstr(b"signal\0".as_ptr() as *const i8), Qfalse as VALUE);
+    result
 }
 
 // Integer Sender implementations
