@@ -30,7 +30,7 @@ Or install it yourself as:
 ## Requirements
 
 - **Linux only**: This library uses Linux-specific features (memfd, eventfd)
-- **Ruby 2.7+**: Required for the native extension
+- **Ruby 3.2+**: Required for the native extension
 - **Rust toolchain**: Required for compilation
 
 ## Quick Start
