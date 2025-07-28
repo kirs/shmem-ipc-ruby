@@ -5,9 +5,6 @@ use std::fs::File;
 use std::os::unix::io::{FromRawFd, IntoRawFd};
 use std::ptr;
 
-// Thread safety declarations
-unsafe impl Sync for rb_data_type_t {}
-unsafe impl Sync for rb_data_type_struct {}
 
 // Ruby class definitions
 static mut SHMEM_IPC_MODULE: VALUE = Qnil as VALUE;
@@ -88,115 +85,37 @@ unsafe extern "C" fn integer_receiver_mark(_ptr: *mut c_void) {}
 unsafe extern "C" fn byte_sender_mark(_ptr: *mut c_void) {}
 unsafe extern "C" fn byte_receiver_mark(_ptr: *mut c_void) {}
 
-// Data type definitions for TypedData
-static mut FLOAT_SENDER_DATA_TYPE: rb_data_type_t = rb_data_type_t {
-    wrap_struct_name: b"FloatSender\0".as_ptr() as *const i8,
-    function: rb_data_type_struct {
-        dmark: Some(float_sender_mark),
-        dfree: Some(float_sender_free),
-        dsize: None,
-        dcompact: None,
-        reserved: [ptr::null_mut(); 1],
-    },
-    parent: ptr::null(),
-    data: ptr::null_mut(),
-    flags: 0,
-};
-
-static mut FLOAT_RECEIVER_DATA_TYPE: rb_data_type_t = rb_data_type_t {
-    wrap_struct_name: b"FloatReceiver\0".as_ptr() as *const i8,
-    function: rb_data_type_struct {
-        dmark: Some(float_receiver_mark),
-        dfree: Some(float_receiver_free),
-        dsize: None,
-        dcompact: None,
-        reserved: [ptr::null_mut(); 1],
-    },
-    parent: ptr::null(),
-    data: ptr::null_mut(),
-    flags: 0,
-};
-
-static mut INTEGER_SENDER_DATA_TYPE: rb_data_type_t = rb_data_type_t {
-    wrap_struct_name: b"IntegerSender\0".as_ptr() as *const i8,
-    function: rb_data_type_struct {
-        dmark: Some(integer_sender_mark),
-        dfree: Some(integer_sender_free),
-        dsize: None,
-        dcompact: None,
-        reserved: [ptr::null_mut(); 1],
-    },
-    parent: ptr::null(),
-    data: ptr::null_mut(),
-    flags: 0,
-};
-
-static mut INTEGER_RECEIVER_DATA_TYPE: rb_data_type_t = rb_data_type_t {
-    wrap_struct_name: b"IntegerReceiver\0".as_ptr() as *const i8,
-    function: rb_data_type_struct {
-        dmark: Some(integer_receiver_mark),
-        dfree: Some(integer_receiver_free),
-        dsize: None,
-        dcompact: None,
-        reserved: [ptr::null_mut(); 1],
-    },
-    parent: ptr::null(),
-    data: ptr::null_mut(),
-    flags: 0,
-};
-
-static mut BYTE_SENDER_DATA_TYPE: rb_data_type_t = rb_data_type_t {
-    wrap_struct_name: b"ByteSender\0".as_ptr() as *const i8,
-    function: rb_data_type_struct {
-        dmark: Some(byte_sender_mark),
-        dfree: Some(byte_sender_free),
-        dsize: None,
-        dcompact: None,
-        reserved: [ptr::null_mut(); 1],
-    },
-    parent: ptr::null(),
-    data: ptr::null_mut(),
-    flags: 0,
-};
-
-static mut BYTE_RECEIVER_DATA_TYPE: rb_data_type_t = rb_data_type_t {
-    wrap_struct_name: b"ByteReceiver\0".as_ptr() as *const i8,
-    function: rb_data_type_struct {
-        dmark: Some(byte_receiver_mark),
-        dfree: Some(byte_receiver_free),
-        dsize: None,
-        dcompact: None,
-        reserved: [ptr::null_mut(); 1],
-    },
-    parent: ptr::null(),
-    data: ptr::null_mut(),
-    flags: 0,
-};
 
 // Helper functions to get wrappers from Ruby objects
-// Using the correct rb-sys 0.9+ API: RTYPEDDATA_GET_DATA
+// Using instance variables to store pointers
 unsafe fn get_float_sender_wrapper(obj: VALUE) -> *mut FloatSenderWrapper {
-    RTYPEDDATA_GET_DATA(obj) as *mut FloatSenderWrapper
+    let ptr_val = rb_ivar_get(obj, rb_intern(b"@wrapper_ptr\0".as_ptr() as *const i8));
+    rb_big2ulong(ptr_val) as *mut FloatSenderWrapper
 }
 
 unsafe fn get_float_receiver_wrapper(obj: VALUE) -> *mut FloatReceiverWrapper {
-    RTYPEDDATA_GET_DATA(obj) as *mut FloatReceiverWrapper
+    let ptr_val = rb_ivar_get(obj, rb_intern(b"@wrapper_ptr\0".as_ptr() as *const i8));
+    rb_big2ulong(ptr_val) as *mut FloatReceiverWrapper
 }
 
 unsafe fn get_integer_sender_wrapper(obj: VALUE) -> *mut IntegerSenderWrapper {
-    RTYPEDDATA_GET_DATA(obj) as *mut IntegerSenderWrapper
+    let ptr_val = rb_ivar_get(obj, rb_intern(b"@wrapper_ptr\0".as_ptr() as *const i8));
+    rb_big2ulong(ptr_val) as *mut IntegerSenderWrapper
 }
 
 unsafe fn get_integer_receiver_wrapper(obj: VALUE) -> *mut IntegerReceiverWrapper {
-    RTYPEDDATA_GET_DATA(obj) as *mut IntegerReceiverWrapper
+    let ptr_val = rb_ivar_get(obj, rb_intern(b"@wrapper_ptr\0".as_ptr() as *const i8));
+    rb_big2ulong(ptr_val) as *mut IntegerReceiverWrapper
 }
 
 unsafe fn get_byte_sender_wrapper(obj: VALUE) -> *mut ByteSenderWrapper {
-    RTYPEDDATA_GET_DATA(obj) as *mut ByteSenderWrapper
+    let ptr_val = rb_ivar_get(obj, rb_intern(b"@wrapper_ptr\0".as_ptr() as *const i8));
+    rb_big2ulong(ptr_val) as *mut ByteSenderWrapper
 }
 
 unsafe fn get_byte_receiver_wrapper(obj: VALUE) -> *mut ByteReceiverWrapper {
-    RTYPEDDATA_GET_DATA(obj) as *mut ByteReceiverWrapper
+    let ptr_val = rb_ivar_get(obj, rb_intern(b"@wrapper_ptr\0".as_ptr() as *const i8));
+    rb_big2ulong(ptr_val) as *mut ByteReceiverWrapper
 }
 
 // Float Sender implementations
@@ -209,11 +128,9 @@ unsafe extern "C" fn float_sender_new(_klass: VALUE, capacity_val: VALUE) -> VAL
                 sender: Some(sender),
             });
             let wrapper_ptr = Box::into_raw(wrapper) as *mut c_void;
-            rb_data_typed_object_wrap(
-                FLOAT_SENDER_CLASS,
-                wrapper_ptr,
-                &mut FLOAT_SENDER_DATA_TYPE,
-            )
+            let obj = rb_obj_alloc(FLOAT_SENDER_CLASS);
+            rb_ivar_set(obj, rb_intern(b\"@wrapper_ptr\\0\".as_ptr() as *const i8), rb_int2big(wrapper_ptr as isize));
+            obj
         }
         Err(e) => {
             let error_msg = format!("Failed to create float sender: {:?}\0", e);
@@ -239,11 +156,9 @@ unsafe extern "C" fn float_sender_open(_klass: VALUE, capacity_val: VALUE, memfd
                 sender: Some(sender),
             });
             let wrapper_ptr = Box::into_raw(wrapper) as *mut c_void;
-            rb_data_typed_object_wrap(
-                FLOAT_SENDER_CLASS,
-                wrapper_ptr,
-                &mut FLOAT_SENDER_DATA_TYPE,
-            )
+            let obj = rb_obj_alloc(FLOAT_SENDER_CLASS);
+            rb_ivar_set(obj, rb_intern(b\"@wrapper_ptr\\0\".as_ptr() as *const i8), rb_int2big(wrapper_ptr as isize));
+            obj
         }
         Err(e) => {
             let error_msg = format!("Failed to open float sender: {:?}\0", e);
@@ -328,11 +243,9 @@ unsafe extern "C" fn float_receiver_new(_klass: VALUE, capacity_val: VALUE) -> V
                 receiver: Some(receiver),
             });
             let wrapper_ptr = Box::into_raw(wrapper) as *mut c_void;
-            rb_data_typed_object_wrap(
-                FLOAT_RECEIVER_CLASS,
-                wrapper_ptr,
-                &mut FLOAT_RECEIVER_DATA_TYPE,
-            )
+            let obj = rb_obj_alloc(FLOAT_RECEIVER_CLASS);
+            rb_ivar_set(obj, rb_intern(b"@wrapper_ptr\0".as_ptr() as *const i8), rb_int2big(wrapper_ptr as isize));
+            obj
         }
         Err(e) => {
             let error_msg = format!("Failed to create float receiver: {:?}\0", e);
@@ -358,11 +271,9 @@ unsafe extern "C" fn float_receiver_open(_klass: VALUE, capacity_val: VALUE, mem
                 receiver: Some(receiver),
             });
             let wrapper_ptr = Box::into_raw(wrapper) as *mut c_void;
-            rb_data_typed_object_wrap(
-                FLOAT_RECEIVER_CLASS,
-                wrapper_ptr,
-                &mut FLOAT_RECEIVER_DATA_TYPE,
-            )
+            let obj = rb_obj_alloc(FLOAT_RECEIVER_CLASS);
+            rb_ivar_set(obj, rb_intern(b"@wrapper_ptr\0".as_ptr() as *const i8), rb_int2big(wrapper_ptr as isize));
+            obj
         }
         Err(e) => {
             let error_msg = format!("Failed to open float receiver: {:?}\0", e);
@@ -439,11 +350,9 @@ unsafe extern "C" fn integer_sender_new(_klass: VALUE, capacity_val: VALUE) -> V
                 sender: Some(sender),
             });
             let wrapper_ptr = Box::into_raw(wrapper) as *mut c_void;
-            rb_data_typed_object_wrap(
-                INTEGER_SENDER_CLASS,
-                wrapper_ptr,
-                &mut INTEGER_SENDER_DATA_TYPE,
-            )
+            let obj = rb_obj_alloc(INTEGER_SENDER_CLASS);
+            rb_ivar_set(obj, rb_intern(b"@wrapper_ptr\0".as_ptr() as *const i8), rb_int2big(wrapper_ptr as isize));
+            obj
         }
         Err(e) => {
             let error_msg = format!("Failed to create integer sender: {:?}\0", e);
@@ -469,11 +378,9 @@ unsafe extern "C" fn integer_sender_open(_klass: VALUE, capacity_val: VALUE, mem
                 sender: Some(sender),
             });
             let wrapper_ptr = Box::into_raw(wrapper) as *mut c_void;
-            rb_data_typed_object_wrap(
-                INTEGER_SENDER_CLASS,
-                wrapper_ptr,
-                &mut INTEGER_SENDER_DATA_TYPE,
-            )
+            let obj = rb_obj_alloc(INTEGER_SENDER_CLASS);
+            rb_ivar_set(obj, rb_intern(b"@wrapper_ptr\0".as_ptr() as *const i8), rb_int2big(wrapper_ptr as isize));
+            obj
         }
         Err(e) => {
             let error_msg = format!("Failed to open integer sender: {:?}\0", e);
@@ -558,11 +465,9 @@ unsafe extern "C" fn integer_receiver_new(_klass: VALUE, capacity_val: VALUE) ->
                 receiver: Some(receiver),
             });
             let wrapper_ptr = Box::into_raw(wrapper) as *mut c_void;
-            rb_data_typed_object_wrap(
-                INTEGER_RECEIVER_CLASS,
-                wrapper_ptr,
-                &mut INTEGER_RECEIVER_DATA_TYPE,
-            )
+            let obj = rb_obj_alloc(INTEGER_RECEIVER_CLASS);
+            rb_ivar_set(obj, rb_intern(b"@wrapper_ptr\0".as_ptr() as *const i8), rb_int2big(wrapper_ptr as isize));
+            obj
         }
         Err(e) => {
             let error_msg = format!("Failed to create integer receiver: {:?}\0", e);
@@ -588,11 +493,9 @@ unsafe extern "C" fn integer_receiver_open(_klass: VALUE, capacity_val: VALUE, m
                 receiver: Some(receiver),
             });
             let wrapper_ptr = Box::into_raw(wrapper) as *mut c_void;
-            rb_data_typed_object_wrap(
-                INTEGER_RECEIVER_CLASS,
-                wrapper_ptr,
-                &mut INTEGER_RECEIVER_DATA_TYPE,
-            )
+            let obj = rb_obj_alloc(INTEGER_RECEIVER_CLASS);
+            rb_ivar_set(obj, rb_intern(b"@wrapper_ptr\0".as_ptr() as *const i8), rb_int2big(wrapper_ptr as isize));
+            obj
         }
         Err(e) => {
             let error_msg = format!("Failed to open integer receiver: {:?}\0", e);
@@ -669,11 +572,9 @@ unsafe extern "C" fn byte_sender_new(_klass: VALUE, capacity_val: VALUE) -> VALU
                 sender: Some(sender),
             });
             let wrapper_ptr = Box::into_raw(wrapper) as *mut c_void;
-            rb_data_typed_object_wrap(
-                BYTE_SENDER_CLASS,
-                wrapper_ptr,
-                &mut BYTE_SENDER_DATA_TYPE,
-            )
+            let obj = rb_obj_alloc(BYTE_SENDER_CLASS);
+            rb_ivar_set(obj, rb_intern(b"@wrapper_ptr\0".as_ptr() as *const i8), rb_int2big(wrapper_ptr as isize));
+            obj
         }
         Err(e) => {
             let error_msg = format!("Failed to create byte sender: {:?}\0", e);
@@ -699,11 +600,9 @@ unsafe extern "C" fn byte_sender_open(_klass: VALUE, capacity_val: VALUE, memfd_
                 sender: Some(sender),
             });
             let wrapper_ptr = Box::into_raw(wrapper) as *mut c_void;
-            rb_data_typed_object_wrap(
-                BYTE_SENDER_CLASS,
-                wrapper_ptr,
-                &mut BYTE_SENDER_DATA_TYPE,
-            )
+            let obj = rb_obj_alloc(BYTE_SENDER_CLASS);
+            rb_ivar_set(obj, rb_intern(b"@wrapper_ptr\0".as_ptr() as *const i8), rb_int2big(wrapper_ptr as isize));
+            obj
         }
         Err(e) => {
             let error_msg = format!("Failed to open byte sender: {:?}\0", e);
@@ -795,11 +694,9 @@ unsafe extern "C" fn byte_receiver_new(_klass: VALUE, capacity_val: VALUE) -> VA
                 receiver: Some(receiver),
             });
             let wrapper_ptr = Box::into_raw(wrapper) as *mut c_void;
-            rb_data_typed_object_wrap(
-                BYTE_RECEIVER_CLASS,
-                wrapper_ptr,
-                &mut BYTE_RECEIVER_DATA_TYPE,
-            )
+            let obj = rb_obj_alloc(BYTE_RECEIVER_CLASS);
+            rb_ivar_set(obj, rb_intern(b"@wrapper_ptr\0".as_ptr() as *const i8), rb_int2big(wrapper_ptr as isize));
+            obj
         }
         Err(e) => {
             let error_msg = format!("Failed to create byte receiver: {:?}\0", e);
@@ -825,11 +722,9 @@ unsafe extern "C" fn byte_receiver_open(_klass: VALUE, capacity_val: VALUE, memf
                 receiver: Some(receiver),
             });
             let wrapper_ptr = Box::into_raw(wrapper) as *mut c_void;
-            rb_data_typed_object_wrap(
-                BYTE_RECEIVER_CLASS,
-                wrapper_ptr,
-                &mut BYTE_RECEIVER_DATA_TYPE,
-            )
+            let obj = rb_obj_alloc(BYTE_RECEIVER_CLASS);
+            rb_ivar_set(obj, rb_intern(b"@wrapper_ptr\0".as_ptr() as *const i8), rb_int2big(wrapper_ptr as isize));
+            obj
         }
         Err(e) => {
             let error_msg = format!("Failed to open byte receiver: {:?}\0", e);
