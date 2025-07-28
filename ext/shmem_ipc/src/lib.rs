@@ -5,6 +5,10 @@ use std::fs::File;
 use std::os::unix::io::{FromRawFd, IntoRawFd};
 use std::ptr;
 
+// Thread safety declarations
+unsafe impl Sync for rb_data_type_t {}
+unsafe impl Sync for rb_data_type_struct {}
+
 // Ruby class definitions
 static mut SHMEM_IPC_MODULE: VALUE = Qnil as VALUE;
 static mut FLOAT_SENDER_CLASS: VALUE = Qnil as VALUE;
@@ -84,6 +88,91 @@ unsafe extern "C" fn integer_receiver_mark(_ptr: *mut c_void) {}
 unsafe extern "C" fn byte_sender_mark(_ptr: *mut c_void) {}
 unsafe extern "C" fn byte_receiver_mark(_ptr: *mut c_void) {}
 
+// Data type definitions for TypedData
+static mut FLOAT_SENDER_DATA_TYPE: rb_data_type_t = rb_data_type_t {
+    wrap_struct_name: b"FloatSender\0".as_ptr() as *const i8,
+    function: rb_data_type_struct {
+        dmark: Some(float_sender_mark),
+        dfree: Some(float_sender_free),
+        dsize: None,
+        dcompact: None,
+        reserved: [ptr::null_mut(); 1],
+    },
+    parent: ptr::null(),
+    data: ptr::null_mut(),
+    flags: 0,
+};
+
+static mut FLOAT_RECEIVER_DATA_TYPE: rb_data_type_t = rb_data_type_t {
+    wrap_struct_name: b"FloatReceiver\0".as_ptr() as *const i8,
+    function: rb_data_type_struct {
+        dmark: Some(float_receiver_mark),
+        dfree: Some(float_receiver_free),
+        dsize: None,
+        dcompact: None,
+        reserved: [ptr::null_mut(); 1],
+    },
+    parent: ptr::null(),
+    data: ptr::null_mut(),
+    flags: 0,
+};
+
+static mut INTEGER_SENDER_DATA_TYPE: rb_data_type_t = rb_data_type_t {
+    wrap_struct_name: b"IntegerSender\0".as_ptr() as *const i8,
+    function: rb_data_type_struct {
+        dmark: Some(integer_sender_mark),
+        dfree: Some(integer_sender_free),
+        dsize: None,
+        dcompact: None,
+        reserved: [ptr::null_mut(); 1],
+    },
+    parent: ptr::null(),
+    data: ptr::null_mut(),
+    flags: 0,
+};
+
+static mut INTEGER_RECEIVER_DATA_TYPE: rb_data_type_t = rb_data_type_t {
+    wrap_struct_name: b"IntegerReceiver\0".as_ptr() as *const i8,
+    function: rb_data_type_struct {
+        dmark: Some(integer_receiver_mark),
+        dfree: Some(integer_receiver_free),
+        dsize: None,
+        dcompact: None,
+        reserved: [ptr::null_mut(); 1],
+    },
+    parent: ptr::null(),
+    data: ptr::null_mut(),
+    flags: 0,
+};
+
+static mut BYTE_SENDER_DATA_TYPE: rb_data_type_t = rb_data_type_t {
+    wrap_struct_name: b"ByteSender\0".as_ptr() as *const i8,
+    function: rb_data_type_struct {
+        dmark: Some(byte_sender_mark),
+        dfree: Some(byte_sender_free),
+        dsize: None,
+        dcompact: None,
+        reserved: [ptr::null_mut(); 1],
+    },
+    parent: ptr::null(),
+    data: ptr::null_mut(),
+    flags: 0,
+};
+
+static mut BYTE_RECEIVER_DATA_TYPE: rb_data_type_t = rb_data_type_t {
+    wrap_struct_name: b"ByteReceiver\0".as_ptr() as *const i8,
+    function: rb_data_type_struct {
+        dmark: Some(byte_receiver_mark),
+        dfree: Some(byte_receiver_free),
+        dsize: None,
+        dcompact: None,
+        reserved: [ptr::null_mut(); 1],
+    },
+    parent: ptr::null(),
+    data: ptr::null_mut(),
+    flags: 0,
+};
+
 // Helper functions to get wrappers from Ruby objects
 // Using the correct rb-sys 0.9+ API: RTYPEDDATA_GET_DATA
 unsafe fn get_float_sender_wrapper(obj: VALUE) -> *mut FloatSenderWrapper {
@@ -120,11 +209,10 @@ unsafe extern "C" fn float_sender_new(_klass: VALUE, capacity_val: VALUE) -> VAL
                 sender: Some(sender),
             });
             let wrapper_ptr = Box::into_raw(wrapper) as *mut c_void;
-            rb_data_object_wrap(
+            rb_data_typed_object_wrap(
                 FLOAT_SENDER_CLASS,
                 wrapper_ptr,
-                Some(float_sender_mark),
-                Some(float_sender_free),
+                &mut FLOAT_SENDER_DATA_TYPE,
             )
         }
         Err(e) => {
@@ -151,11 +239,10 @@ unsafe extern "C" fn float_sender_open(_klass: VALUE, capacity_val: VALUE, memfd
                 sender: Some(sender),
             });
             let wrapper_ptr = Box::into_raw(wrapper) as *mut c_void;
-            rb_data_object_wrap(
+            rb_data_typed_object_wrap(
                 FLOAT_SENDER_CLASS,
                 wrapper_ptr,
-                Some(float_sender_mark),
-                Some(float_sender_free),
+                &mut FLOAT_SENDER_DATA_TYPE,
             )
         }
         Err(e) => {
@@ -241,11 +328,10 @@ unsafe extern "C" fn float_receiver_new(_klass: VALUE, capacity_val: VALUE) -> V
                 receiver: Some(receiver),
             });
             let wrapper_ptr = Box::into_raw(wrapper) as *mut c_void;
-            rb_data_object_wrap(
+            rb_data_typed_object_wrap(
                 FLOAT_RECEIVER_CLASS,
                 wrapper_ptr,
-                Some(float_receiver_mark),
-                Some(float_receiver_free),
+                &mut FLOAT_RECEIVER_DATA_TYPE,
             )
         }
         Err(e) => {
@@ -272,11 +358,10 @@ unsafe extern "C" fn float_receiver_open(_klass: VALUE, capacity_val: VALUE, mem
                 receiver: Some(receiver),
             });
             let wrapper_ptr = Box::into_raw(wrapper) as *mut c_void;
-            rb_data_object_wrap(
+            rb_data_typed_object_wrap(
                 FLOAT_RECEIVER_CLASS,
                 wrapper_ptr,
-                Some(float_receiver_mark),
-                Some(float_receiver_free),
+                &mut FLOAT_RECEIVER_DATA_TYPE,
             )
         }
         Err(e) => {
@@ -354,11 +439,10 @@ unsafe extern "C" fn integer_sender_new(_klass: VALUE, capacity_val: VALUE) -> V
                 sender: Some(sender),
             });
             let wrapper_ptr = Box::into_raw(wrapper) as *mut c_void;
-            rb_data_object_wrap(
+            rb_data_typed_object_wrap(
                 INTEGER_SENDER_CLASS,
                 wrapper_ptr,
-                Some(integer_sender_mark),
-                Some(integer_sender_free),
+                &mut INTEGER_SENDER_DATA_TYPE,
             )
         }
         Err(e) => {
@@ -385,11 +469,10 @@ unsafe extern "C" fn integer_sender_open(_klass: VALUE, capacity_val: VALUE, mem
                 sender: Some(sender),
             });
             let wrapper_ptr = Box::into_raw(wrapper) as *mut c_void;
-            rb_data_object_wrap(
+            rb_data_typed_object_wrap(
                 INTEGER_SENDER_CLASS,
                 wrapper_ptr,
-                Some(integer_sender_mark),
-                Some(integer_sender_free),
+                &mut INTEGER_SENDER_DATA_TYPE,
             )
         }
         Err(e) => {
@@ -475,11 +558,10 @@ unsafe extern "C" fn integer_receiver_new(_klass: VALUE, capacity_val: VALUE) ->
                 receiver: Some(receiver),
             });
             let wrapper_ptr = Box::into_raw(wrapper) as *mut c_void;
-            rb_data_object_wrap(
+            rb_data_typed_object_wrap(
                 INTEGER_RECEIVER_CLASS,
                 wrapper_ptr,
-                Some(integer_receiver_mark),
-                Some(integer_receiver_free),
+                &mut INTEGER_RECEIVER_DATA_TYPE,
             )
         }
         Err(e) => {
@@ -506,11 +588,10 @@ unsafe extern "C" fn integer_receiver_open(_klass: VALUE, capacity_val: VALUE, m
                 receiver: Some(receiver),
             });
             let wrapper_ptr = Box::into_raw(wrapper) as *mut c_void;
-            rb_data_object_wrap(
+            rb_data_typed_object_wrap(
                 INTEGER_RECEIVER_CLASS,
                 wrapper_ptr,
-                Some(integer_receiver_mark),
-                Some(integer_receiver_free),
+                &mut INTEGER_RECEIVER_DATA_TYPE,
             )
         }
         Err(e) => {
@@ -588,11 +669,10 @@ unsafe extern "C" fn byte_sender_new(_klass: VALUE, capacity_val: VALUE) -> VALU
                 sender: Some(sender),
             });
             let wrapper_ptr = Box::into_raw(wrapper) as *mut c_void;
-            rb_data_object_wrap(
+            rb_data_typed_object_wrap(
                 BYTE_SENDER_CLASS,
                 wrapper_ptr,
-                Some(byte_sender_mark),
-                Some(byte_sender_free),
+                &mut BYTE_SENDER_DATA_TYPE,
             )
         }
         Err(e) => {
@@ -619,11 +699,10 @@ unsafe extern "C" fn byte_sender_open(_klass: VALUE, capacity_val: VALUE, memfd_
                 sender: Some(sender),
             });
             let wrapper_ptr = Box::into_raw(wrapper) as *mut c_void;
-            rb_data_object_wrap(
+            rb_data_typed_object_wrap(
                 BYTE_SENDER_CLASS,
                 wrapper_ptr,
-                Some(byte_sender_mark),
-                Some(byte_sender_free),
+                &mut BYTE_SENDER_DATA_TYPE,
             )
         }
         Err(e) => {
@@ -716,11 +795,10 @@ unsafe extern "C" fn byte_receiver_new(_klass: VALUE, capacity_val: VALUE) -> VA
                 receiver: Some(receiver),
             });
             let wrapper_ptr = Box::into_raw(wrapper) as *mut c_void;
-            rb_data_object_wrap(
+            rb_data_typed_object_wrap(
                 BYTE_RECEIVER_CLASS,
                 wrapper_ptr,
-                Some(byte_receiver_mark),
-                Some(byte_receiver_free),
+                &mut BYTE_RECEIVER_DATA_TYPE,
             )
         }
         Err(e) => {
@@ -747,11 +825,10 @@ unsafe extern "C" fn byte_receiver_open(_klass: VALUE, capacity_val: VALUE, memf
                 receiver: Some(receiver),
             });
             let wrapper_ptr = Box::into_raw(wrapper) as *mut c_void;
-            rb_data_object_wrap(
+            rb_data_typed_object_wrap(
                 BYTE_RECEIVER_CLASS,
                 wrapper_ptr,
-                Some(byte_receiver_mark),
-                Some(byte_receiver_free),
+                &mut BYTE_RECEIVER_DATA_TYPE,
             )
         }
         Err(e) => {
