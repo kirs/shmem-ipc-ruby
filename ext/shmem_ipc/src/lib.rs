@@ -129,12 +129,11 @@ unsafe extern "C" fn float_sender_new(_klass: VALUE, capacity_val: VALUE) -> VAL
             });
             let wrapper_ptr = Box::into_raw(wrapper) as *mut c_void;
             let obj = rb_obj_alloc(FLOAT_SENDER_CLASS);
-            rb_ivar_set(obj, rb_intern(b\"@wrapper_ptr\\0\".as_ptr() as *const i8), rb_int2big(wrapper_ptr as isize));
+            rb_ivar_set(obj, rb_intern(b"@wrapper_ptr\0".as_ptr() as *const i8), rb_int2big(wrapper_ptr as isize));
             obj
         }
         Err(e) => {
-            let error_msg = format!("Failed to create float sender: {:?}\0", e);
-            rb_raise(rb_eRuntimeError, error_msg.as_ptr() as *const i8);
+            rb_raise(rb_eRuntimeError, b"Failed to create float sender\0".as_ptr() as *const i8);
             unreachable!()
         }
     }
@@ -157,12 +156,11 @@ unsafe extern "C" fn float_sender_open(_klass: VALUE, capacity_val: VALUE, memfd
             });
             let wrapper_ptr = Box::into_raw(wrapper) as *mut c_void;
             let obj = rb_obj_alloc(FLOAT_SENDER_CLASS);
-            rb_ivar_set(obj, rb_intern(b\"@wrapper_ptr\\0\".as_ptr() as *const i8), rb_int2big(wrapper_ptr as isize));
+            rb_ivar_set(obj, rb_intern(b"@wrapper_ptr\0".as_ptr() as *const i8), rb_int2big(wrapper_ptr as isize));
             obj
         }
         Err(e) => {
-            let error_msg = format!("Failed to open float sender: {:?}\0", e);
-            rb_raise(rb_eRuntimeError, error_msg.as_ptr() as *const i8);
+            rb_raise(rb_eRuntimeError, b"Failed to open float sender\0".as_ptr() as *const i8);
             unreachable!()
         }
     }
@@ -226,8 +224,7 @@ unsafe extern "C" fn float_sender_send_data(_self: VALUE, ruby_array: VALUE) -> 
             result
         }
         Err(e) => {
-            let error_msg = format!("Send failed: {:?}\0", e);
-            rb_raise(rb_eRuntimeError, error_msg.as_ptr() as *const i8);
+            rb_raise(rb_eRuntimeError, b"Send failed\0".as_ptr() as *const i8);
             unreachable!()
         }
     }
@@ -248,8 +245,7 @@ unsafe extern "C" fn float_receiver_new(_klass: VALUE, capacity_val: VALUE) -> V
             obj
         }
         Err(e) => {
-            let error_msg = format!("Failed to create float receiver: {:?}\0", e);
-            rb_raise(rb_eRuntimeError, error_msg.as_ptr() as *const i8);
+            rb_raise(rb_eRuntimeError, b"Failed to create float receiver\0".as_ptr() as *const i8);
             unreachable!()
         }
     }
@@ -276,8 +272,7 @@ unsafe extern "C" fn float_receiver_open(_klass: VALUE, capacity_val: VALUE, mem
             obj
         }
         Err(e) => {
-            let error_msg = format!("Failed to open float receiver: {:?}\0", e);
-            rb_raise(rb_eRuntimeError, error_msg.as_ptr() as *const i8);
+            rb_raise(rb_eRuntimeError, b"Failed to open float receiver\0".as_ptr() as *const i8);
             unreachable!()
         }
     }
@@ -333,8 +328,7 @@ unsafe extern "C" fn float_receiver_receive_data(_self: VALUE) -> VALUE {
             result
         }
         Err(e) => {
-            let error_msg = format!("Receive failed: {:?}\0", e);
-            rb_raise(rb_eRuntimeError, error_msg.as_ptr() as *const i8);
+            rb_raise(rb_eRuntimeError, b"Receive failed\0".as_ptr() as *const i8);
             unreachable!()
         }
     }
@@ -355,8 +349,7 @@ unsafe extern "C" fn integer_sender_new(_klass: VALUE, capacity_val: VALUE) -> V
             obj
         }
         Err(e) => {
-            let error_msg = format!("Failed to create integer sender: {:?}\0", e);
-            rb_raise(rb_eRuntimeError, error_msg.as_ptr() as *const i8);
+            rb_raise(rb_eRuntimeError, b"Failed to create integer sender\0".as_ptr() as *const i8);
             unreachable!()
         }
     }
@@ -383,8 +376,7 @@ unsafe extern "C" fn integer_sender_open(_klass: VALUE, capacity_val: VALUE, mem
             obj
         }
         Err(e) => {
-            let error_msg = format!("Failed to open integer sender: {:?}\0", e);
-            rb_raise(rb_eRuntimeError, error_msg.as_ptr() as *const i8);
+            rb_raise(rb_eRuntimeError, b"Failed to open integer sender\0".as_ptr() as *const i8);
             unreachable!()
         }
     }
@@ -448,8 +440,7 @@ unsafe extern "C" fn integer_sender_send_data(_self: VALUE, ruby_array: VALUE) -
             result
         }
         Err(e) => {
-            let error_msg = format!("Send failed: {:?}\0", e);
-            rb_raise(rb_eRuntimeError, error_msg.as_ptr() as *const i8);
+            rb_raise(rb_eRuntimeError, b"Send failed\0".as_ptr() as *const i8);
             unreachable!()
         }
     }
@@ -470,8 +461,7 @@ unsafe extern "C" fn integer_receiver_new(_klass: VALUE, capacity_val: VALUE) ->
             obj
         }
         Err(e) => {
-            let error_msg = format!("Failed to create integer receiver: {:?}\0", e);
-            rb_raise(rb_eRuntimeError, error_msg.as_ptr() as *const i8);
+            rb_raise(rb_eRuntimeError, b"Failed to create integer receiver\0".as_ptr() as *const i8);
             unreachable!()
         }
     }
@@ -498,8 +488,7 @@ unsafe extern "C" fn integer_receiver_open(_klass: VALUE, capacity_val: VALUE, m
             obj
         }
         Err(e) => {
-            let error_msg = format!("Failed to open integer receiver: {:?}\0", e);
-            rb_raise(rb_eRuntimeError, error_msg.as_ptr() as *const i8);
+            rb_raise(rb_eRuntimeError, b"Failed to open integer receiver\0".as_ptr() as *const i8);
             unreachable!()
         }
     }
@@ -555,8 +544,7 @@ unsafe extern "C" fn integer_receiver_receive_data(_self: VALUE) -> VALUE {
             result
         }
         Err(e) => {
-            let error_msg = format!("Receive failed: {:?}\0", e);
-            rb_raise(rb_eRuntimeError, error_msg.as_ptr() as *const i8);
+            rb_raise(rb_eRuntimeError, b"Receive failed\0".as_ptr() as *const i8);
             unreachable!()
         }
     }
@@ -577,8 +565,7 @@ unsafe extern "C" fn byte_sender_new(_klass: VALUE, capacity_val: VALUE) -> VALU
             obj
         }
         Err(e) => {
-            let error_msg = format!("Failed to create byte sender: {:?}\0", e);
-            rb_raise(rb_eRuntimeError, error_msg.as_ptr() as *const i8);
+            rb_raise(rb_eRuntimeError, b"Failed to create byte sender\0".as_ptr() as *const i8);
             unreachable!()
         }
     }
@@ -605,8 +592,7 @@ unsafe extern "C" fn byte_sender_open(_klass: VALUE, capacity_val: VALUE, memfd_
             obj
         }
         Err(e) => {
-            let error_msg = format!("Failed to open byte sender: {:?}\0", e);
-            rb_raise(rb_eRuntimeError, error_msg.as_ptr() as *const i8);
+            rb_raise(rb_eRuntimeError, b"Failed to open byte sender\0".as_ptr() as *const i8);
             unreachable!()
         }
     }
@@ -677,8 +663,7 @@ unsafe extern "C" fn byte_sender_send_data(_self: VALUE, ruby_data: VALUE) -> VA
             result
         }
         Err(e) => {
-            let error_msg = format!("Send failed: {:?}\0", e);
-            rb_raise(rb_eRuntimeError, error_msg.as_ptr() as *const i8);
+            rb_raise(rb_eRuntimeError, b"Send failed\0".as_ptr() as *const i8);
             unreachable!()
         }
     }
@@ -699,8 +684,7 @@ unsafe extern "C" fn byte_receiver_new(_klass: VALUE, capacity_val: VALUE) -> VA
             obj
         }
         Err(e) => {
-            let error_msg = format!("Failed to create byte receiver: {:?}\0", e);
-            rb_raise(rb_eRuntimeError, error_msg.as_ptr() as *const i8);
+            rb_raise(rb_eRuntimeError, b"Failed to create byte receiver\0".as_ptr() as *const i8);
             unreachable!()
         }
     }
@@ -727,8 +711,7 @@ unsafe extern "C" fn byte_receiver_open(_klass: VALUE, capacity_val: VALUE, memf
             obj
         }
         Err(e) => {
-            let error_msg = format!("Failed to open byte receiver: {:?}\0", e);
-            rb_raise(rb_eRuntimeError, error_msg.as_ptr() as *const i8);
+            rb_raise(rb_eRuntimeError, b"Failed to open byte receiver\0".as_ptr() as *const i8);
             unreachable!()
         }
     }
@@ -782,8 +765,7 @@ unsafe extern "C" fn byte_receiver_receive_data(_self: VALUE) -> VALUE {
             result
         }
         Err(e) => {
-            let error_msg = format!("Receive failed: {:?}\0", e);
-            rb_raise(rb_eRuntimeError, error_msg.as_ptr() as *const i8);
+            rb_raise(rb_eRuntimeError, b"Receive failed\0".as_ptr() as *const i8);
             unreachable!()
         }
     }
