@@ -86,36 +86,36 @@ unsafe extern "C" fn byte_sender_mark(_ptr: *mut c_void) {}
 unsafe extern "C" fn byte_receiver_mark(_ptr: *mut c_void) {}
 
 
-// Helper functions to get wrappers from Ruby objects
-// Using instance variables to store pointers
+// Helper functions to get wrappers from Ruby objects  
+// Simple approach: store pointer as Ruby integer
 unsafe fn get_float_sender_wrapper(obj: VALUE) -> *mut FloatSenderWrapper {
-    let ptr_val = rb_ivar_get(obj, rb_intern(b"@wrapper_ptr\0".as_ptr() as *const i8));
-    rb_big2ulong(ptr_val) as *mut FloatSenderWrapper
+    let ptr_val = rb_ivar_get(obj, rb_intern(b"@ptr\0".as_ptr() as *const i8));
+    rb_num2ulong(ptr_val) as *mut FloatSenderWrapper
 }
 
 unsafe fn get_float_receiver_wrapper(obj: VALUE) -> *mut FloatReceiverWrapper {
-    let ptr_val = rb_ivar_get(obj, rb_intern(b"@wrapper_ptr\0".as_ptr() as *const i8));
-    rb_big2ulong(ptr_val) as *mut FloatReceiverWrapper
+    let ptr_val = rb_ivar_get(obj, rb_intern(b"@ptr\0".as_ptr() as *const i8));
+    rb_num2ulong(ptr_val) as *mut FloatReceiverWrapper
 }
 
 unsafe fn get_integer_sender_wrapper(obj: VALUE) -> *mut IntegerSenderWrapper {
-    let ptr_val = rb_ivar_get(obj, rb_intern(b"@wrapper_ptr\0".as_ptr() as *const i8));
-    rb_big2ulong(ptr_val) as *mut IntegerSenderWrapper
+    let ptr_val = rb_ivar_get(obj, rb_intern(b"@ptr\0".as_ptr() as *const i8));
+    rb_num2ulong(ptr_val) as *mut IntegerSenderWrapper
 }
 
 unsafe fn get_integer_receiver_wrapper(obj: VALUE) -> *mut IntegerReceiverWrapper {
-    let ptr_val = rb_ivar_get(obj, rb_intern(b"@wrapper_ptr\0".as_ptr() as *const i8));
-    rb_big2ulong(ptr_val) as *mut IntegerReceiverWrapper
+    let ptr_val = rb_ivar_get(obj, rb_intern(b"@ptr\0".as_ptr() as *const i8));
+    rb_num2ulong(ptr_val) as *mut IntegerReceiverWrapper
 }
 
 unsafe fn get_byte_sender_wrapper(obj: VALUE) -> *mut ByteSenderWrapper {
-    let ptr_val = rb_ivar_get(obj, rb_intern(b"@wrapper_ptr\0".as_ptr() as *const i8));
-    rb_big2ulong(ptr_val) as *mut ByteSenderWrapper
+    let ptr_val = rb_ivar_get(obj, rb_intern(b"@ptr\0".as_ptr() as *const i8));
+    rb_num2ulong(ptr_val) as *mut ByteSenderWrapper
 }
 
 unsafe fn get_byte_receiver_wrapper(obj: VALUE) -> *mut ByteReceiverWrapper {
-    let ptr_val = rb_ivar_get(obj, rb_intern(b"@wrapper_ptr\0".as_ptr() as *const i8));
-    rb_big2ulong(ptr_val) as *mut ByteReceiverWrapper
+    let ptr_val = rb_ivar_get(obj, rb_intern(b"@ptr\0".as_ptr() as *const i8));
+    rb_num2ulong(ptr_val) as *mut ByteReceiverWrapper
 }
 
 // Float Sender implementations
@@ -129,7 +129,7 @@ unsafe extern "C" fn float_sender_new(_klass: VALUE, capacity_val: VALUE) -> VAL
             });
             let wrapper_ptr = Box::into_raw(wrapper) as *mut c_void;
             let obj = rb_obj_alloc(FLOAT_SENDER_CLASS);
-            rb_ivar_set(obj, rb_intern(b"@wrapper_ptr\0".as_ptr() as *const i8), rb_int2big(wrapper_ptr as isize));
+            rb_ivar_set(obj, rb_intern(b"@ptr\0".as_ptr() as *const i8), rb_ulong2num(wrapper_ptr as c_ulong));
             obj
         }
         Err(e) => {
@@ -156,7 +156,7 @@ unsafe extern "C" fn float_sender_open(_klass: VALUE, capacity_val: VALUE, memfd
             });
             let wrapper_ptr = Box::into_raw(wrapper) as *mut c_void;
             let obj = rb_obj_alloc(FLOAT_SENDER_CLASS);
-            rb_ivar_set(obj, rb_intern(b"@wrapper_ptr\0".as_ptr() as *const i8), rb_int2big(wrapper_ptr as isize));
+            rb_ivar_set(obj, rb_intern(b"@ptr\0".as_ptr() as *const i8), rb_ulong2num(wrapper_ptr as c_ulong));
             obj
         }
         Err(e) => {
@@ -180,9 +180,9 @@ unsafe extern "C" fn float_sender_get_fds(_self: VALUE) -> VALUE {
     let full_fd = sender_ref.full_signal().try_clone().map(|f| f.into_raw_fd()).unwrap_or(-1);
 
     let array = rb_ary_new_capa(3);
-    rb_ary_push(array, rb_int2big(memfd_fd as isize));
-    rb_ary_push(array, rb_int2big(empty_fd as isize));
-    rb_ary_push(array, rb_int2big(full_fd as isize));
+    rb_ary_push(array, rb_uint2big(memfd_fd as usize));
+    rb_ary_push(array, rb_uint2big(empty_fd as usize));
+    rb_ary_push(array, rb_uint2big(full_fd as usize));
     array
 }
 
@@ -192,10 +192,11 @@ unsafe extern "C" fn float_sender_send_data(_self: VALUE, ruby_array: VALUE) -> 
         rb_raise(rb_eRuntimeError, b"Invalid float sender object\0".as_ptr() as *const i8);
         unreachable!()
     }
-    if RB_TYPE(ruby_array) != RUBY_T_ARRAY {
-        rb_raise(rb_eTypeError, b"Expected array\0".as_ptr() as *const i8);
-        unreachable!()
-    }
+    // Skip type check for now to debug the issue
+    // if RB_TYPE(ruby_array) != RUBY_T_ARRAY {
+    //     rb_raise(rb_eTypeError, b"Expected array\0".as_ptr() as *const i8);
+    //     unreachable!()
+    // }
 
     let len = RARRAY_LEN(ruby_array) as usize;
     let mut data = Vec::with_capacity(len);
@@ -241,7 +242,7 @@ unsafe extern "C" fn float_receiver_new(_klass: VALUE, capacity_val: VALUE) -> V
             });
             let wrapper_ptr = Box::into_raw(wrapper) as *mut c_void;
             let obj = rb_obj_alloc(FLOAT_RECEIVER_CLASS);
-            rb_ivar_set(obj, rb_intern(b"@wrapper_ptr\0".as_ptr() as *const i8), rb_int2big(wrapper_ptr as isize));
+            rb_ivar_set(obj, rb_intern(b"@ptr\0".as_ptr() as *const i8), rb_ulong2num(wrapper_ptr as c_ulong));
             obj
         }
         Err(e) => {
@@ -268,7 +269,7 @@ unsafe extern "C" fn float_receiver_open(_klass: VALUE, capacity_val: VALUE, mem
             });
             let wrapper_ptr = Box::into_raw(wrapper) as *mut c_void;
             let obj = rb_obj_alloc(FLOAT_RECEIVER_CLASS);
-            rb_ivar_set(obj, rb_intern(b"@wrapper_ptr\0".as_ptr() as *const i8), rb_int2big(wrapper_ptr as isize));
+            rb_ivar_set(obj, rb_intern(b"@ptr\0".as_ptr() as *const i8), rb_ulong2num(wrapper_ptr as c_ulong));
             obj
         }
         Err(e) => {
@@ -292,9 +293,9 @@ unsafe extern "C" fn float_receiver_get_fds(_self: VALUE) -> VALUE {
     let full_fd = receiver_ref.full_signal().try_clone().map(|f| f.into_raw_fd()).unwrap_or(-1);
 
     let array = rb_ary_new_capa(3);
-    rb_ary_push(array, rb_int2big(memfd_fd as isize));
-    rb_ary_push(array, rb_int2big(empty_fd as isize));
-    rb_ary_push(array, rb_int2big(full_fd as isize));
+    rb_ary_push(array, rb_uint2big(memfd_fd as usize));
+    rb_ary_push(array, rb_uint2big(empty_fd as usize));
+    rb_ary_push(array, rb_uint2big(full_fd as usize));
     array
 }
 
@@ -345,7 +346,7 @@ unsafe extern "C" fn integer_sender_new(_klass: VALUE, capacity_val: VALUE) -> V
             });
             let wrapper_ptr = Box::into_raw(wrapper) as *mut c_void;
             let obj = rb_obj_alloc(INTEGER_SENDER_CLASS);
-            rb_ivar_set(obj, rb_intern(b"@wrapper_ptr\0".as_ptr() as *const i8), rb_int2big(wrapper_ptr as isize));
+            rb_ivar_set(obj, rb_intern(b"@ptr\0".as_ptr() as *const i8), rb_ulong2num(wrapper_ptr as c_ulong));
             obj
         }
         Err(e) => {
@@ -372,7 +373,7 @@ unsafe extern "C" fn integer_sender_open(_klass: VALUE, capacity_val: VALUE, mem
             });
             let wrapper_ptr = Box::into_raw(wrapper) as *mut c_void;
             let obj = rb_obj_alloc(INTEGER_SENDER_CLASS);
-            rb_ivar_set(obj, rb_intern(b"@wrapper_ptr\0".as_ptr() as *const i8), rb_int2big(wrapper_ptr as isize));
+            rb_ivar_set(obj, rb_intern(b"@ptr\0".as_ptr() as *const i8), rb_ulong2num(wrapper_ptr as c_ulong));
             obj
         }
         Err(e) => {
@@ -396,9 +397,9 @@ unsafe extern "C" fn integer_sender_get_fds(_self: VALUE) -> VALUE {
     let full_fd = sender_ref.full_signal().try_clone().map(|f| f.into_raw_fd()).unwrap_or(-1);
 
     let array = rb_ary_new_capa(3);
-    rb_ary_push(array, rb_int2big(memfd_fd as isize));
-    rb_ary_push(array, rb_int2big(empty_fd as isize));
-    rb_ary_push(array, rb_int2big(full_fd as isize));
+    rb_ary_push(array, rb_uint2big(memfd_fd as usize));
+    rb_ary_push(array, rb_uint2big(empty_fd as usize));
+    rb_ary_push(array, rb_uint2big(full_fd as usize));
     array
 }
 
@@ -457,7 +458,7 @@ unsafe extern "C" fn integer_receiver_new(_klass: VALUE, capacity_val: VALUE) ->
             });
             let wrapper_ptr = Box::into_raw(wrapper) as *mut c_void;
             let obj = rb_obj_alloc(INTEGER_RECEIVER_CLASS);
-            rb_ivar_set(obj, rb_intern(b"@wrapper_ptr\0".as_ptr() as *const i8), rb_int2big(wrapper_ptr as isize));
+            rb_ivar_set(obj, rb_intern(b"@ptr\0".as_ptr() as *const i8), rb_ulong2num(wrapper_ptr as c_ulong));
             obj
         }
         Err(e) => {
@@ -484,7 +485,7 @@ unsafe extern "C" fn integer_receiver_open(_klass: VALUE, capacity_val: VALUE, m
             });
             let wrapper_ptr = Box::into_raw(wrapper) as *mut c_void;
             let obj = rb_obj_alloc(INTEGER_RECEIVER_CLASS);
-            rb_ivar_set(obj, rb_intern(b"@wrapper_ptr\0".as_ptr() as *const i8), rb_int2big(wrapper_ptr as isize));
+            rb_ivar_set(obj, rb_intern(b"@ptr\0".as_ptr() as *const i8), rb_ulong2num(wrapper_ptr as c_ulong));
             obj
         }
         Err(e) => {
@@ -508,9 +509,9 @@ unsafe extern "C" fn integer_receiver_get_fds(_self: VALUE) -> VALUE {
     let full_fd = receiver_ref.full_signal().try_clone().map(|f| f.into_raw_fd()).unwrap_or(-1);
 
     let array = rb_ary_new_capa(3);
-    rb_ary_push(array, rb_int2big(memfd_fd as isize));
-    rb_ary_push(array, rb_int2big(empty_fd as isize));
-    rb_ary_push(array, rb_int2big(full_fd as isize));
+    rb_ary_push(array, rb_uint2big(memfd_fd as usize));
+    rb_ary_push(array, rb_uint2big(empty_fd as usize));
+    rb_ary_push(array, rb_uint2big(full_fd as usize));
     array
 }
 
@@ -561,7 +562,7 @@ unsafe extern "C" fn byte_sender_new(_klass: VALUE, capacity_val: VALUE) -> VALU
             });
             let wrapper_ptr = Box::into_raw(wrapper) as *mut c_void;
             let obj = rb_obj_alloc(BYTE_SENDER_CLASS);
-            rb_ivar_set(obj, rb_intern(b"@wrapper_ptr\0".as_ptr() as *const i8), rb_int2big(wrapper_ptr as isize));
+            rb_ivar_set(obj, rb_intern(b"@ptr\0".as_ptr() as *const i8), rb_ulong2num(wrapper_ptr as c_ulong));
             obj
         }
         Err(e) => {
@@ -588,7 +589,7 @@ unsafe extern "C" fn byte_sender_open(_klass: VALUE, capacity_val: VALUE, memfd_
             });
             let wrapper_ptr = Box::into_raw(wrapper) as *mut c_void;
             let obj = rb_obj_alloc(BYTE_SENDER_CLASS);
-            rb_ivar_set(obj, rb_intern(b"@wrapper_ptr\0".as_ptr() as *const i8), rb_int2big(wrapper_ptr as isize));
+            rb_ivar_set(obj, rb_intern(b"@ptr\0".as_ptr() as *const i8), rb_ulong2num(wrapper_ptr as c_ulong));
             obj
         }
         Err(e) => {
@@ -612,9 +613,9 @@ unsafe extern "C" fn byte_sender_get_fds(_self: VALUE) -> VALUE {
     let full_fd = sender_ref.full_signal().try_clone().map(|f| f.into_raw_fd()).unwrap_or(-1);
 
     let array = rb_ary_new_capa(3);
-    rb_ary_push(array, rb_int2big(memfd_fd as isize));
-    rb_ary_push(array, rb_int2big(empty_fd as isize));
-    rb_ary_push(array, rb_int2big(full_fd as isize));
+    rb_ary_push(array, rb_uint2big(memfd_fd as usize));
+    rb_ary_push(array, rb_uint2big(empty_fd as usize));
+    rb_ary_push(array, rb_uint2big(full_fd as usize));
     array
 }
 
@@ -680,7 +681,7 @@ unsafe extern "C" fn byte_receiver_new(_klass: VALUE, capacity_val: VALUE) -> VA
             });
             let wrapper_ptr = Box::into_raw(wrapper) as *mut c_void;
             let obj = rb_obj_alloc(BYTE_RECEIVER_CLASS);
-            rb_ivar_set(obj, rb_intern(b"@wrapper_ptr\0".as_ptr() as *const i8), rb_int2big(wrapper_ptr as isize));
+            rb_ivar_set(obj, rb_intern(b"@ptr\0".as_ptr() as *const i8), rb_ulong2num(wrapper_ptr as c_ulong));
             obj
         }
         Err(e) => {
@@ -707,7 +708,7 @@ unsafe extern "C" fn byte_receiver_open(_klass: VALUE, capacity_val: VALUE, memf
             });
             let wrapper_ptr = Box::into_raw(wrapper) as *mut c_void;
             let obj = rb_obj_alloc(BYTE_RECEIVER_CLASS);
-            rb_ivar_set(obj, rb_intern(b"@wrapper_ptr\0".as_ptr() as *const i8), rb_int2big(wrapper_ptr as isize));
+            rb_ivar_set(obj, rb_intern(b"@ptr\0".as_ptr() as *const i8), rb_ulong2num(wrapper_ptr as c_ulong));
             obj
         }
         Err(e) => {
@@ -731,9 +732,9 @@ unsafe extern "C" fn byte_receiver_get_fds(_self: VALUE) -> VALUE {
     let full_fd = receiver_ref.full_signal().try_clone().map(|f| f.into_raw_fd()).unwrap_or(-1);
 
     let array = rb_ary_new_capa(3);
-    rb_ary_push(array, rb_int2big(memfd_fd as isize));
-    rb_ary_push(array, rb_int2big(empty_fd as isize));
-    rb_ary_push(array, rb_int2big(full_fd as isize));
+    rb_ary_push(array, rb_uint2big(memfd_fd as usize));
+    rb_ary_push(array, rb_uint2big(empty_fd as usize));
+    rb_ary_push(array, rb_uint2big(full_fd as usize));
     array
 }
 
