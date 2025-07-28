@@ -117,14 +117,14 @@ unsafe extern "C" fn float_sender_new(_klass: VALUE, capacity_val: VALUE) -> VAL
     match Sender::new(capacity) {
         Ok(sender) => {
             let wrapper = Box::new(FloatSenderWrapper {
-                sender: Some(std::mem::transmute(sender),
+                sender: Some(sender),
             });
             let wrapper_ptr = Box::into_raw(wrapper) as *mut c_void;
             rb_data_object_wrap(
                 FLOAT_SENDER_CLASS,
                 wrapper_ptr,
-                Some(std::mem::transmute(float_sender_mark),
-                Some(std::mem::transmute(float_sender_free),
+                Some(float_sender_mark),
+                Some(float_sender_free),
             )
         }
         Err(e) => {
@@ -148,14 +148,14 @@ unsafe extern "C" fn float_sender_open(_klass: VALUE, capacity_val: VALUE, memfd
     match Sender::open(capacity, memfd, empty_signal, full_signal) {
         Ok(sender) => {
             let wrapper = Box::new(FloatSenderWrapper {
-                sender: Some(std::mem::transmute(sender),
+                sender: Some(sender),
             });
             let wrapper_ptr = Box::into_raw(wrapper) as *mut c_void;
             rb_data_object_wrap(
                 FLOAT_SENDER_CLASS,
                 wrapper_ptr,
-                Some(std::mem::transmute(float_sender_mark),
-                Some(std::mem::transmute(float_sender_free),
+                Some(float_sender_mark),
+                Some(float_sender_free),
             )
         }
         Err(e) => {
@@ -238,14 +238,14 @@ unsafe extern "C" fn float_receiver_new(_klass: VALUE, capacity_val: VALUE) -> V
     match Receiver::new(capacity) {
         Ok(receiver) => {
             let wrapper = Box::new(FloatReceiverWrapper {
-                receiver: Some(std::mem::transmute(receiver),
+                receiver: Some(receiver),
             });
             let wrapper_ptr = Box::into_raw(wrapper) as *mut c_void;
             rb_data_object_wrap(
                 FLOAT_RECEIVER_CLASS,
                 wrapper_ptr,
-                Some(std::mem::transmute(float_receiver_mark),
-                Some(std::mem::transmute(float_receiver_free),
+                Some(float_receiver_mark),
+                Some(float_receiver_free),
             )
         }
         Err(e) => {
@@ -269,14 +269,14 @@ unsafe extern "C" fn float_receiver_open(_klass: VALUE, capacity_val: VALUE, mem
     match Receiver::open(capacity, memfd, empty_signal, full_signal) {
         Ok(receiver) => {
             let wrapper = Box::new(FloatReceiverWrapper {
-                receiver: Some(std::mem::transmute(receiver),
+                receiver: Some(receiver),
             });
             let wrapper_ptr = Box::into_raw(wrapper) as *mut c_void;
             rb_data_object_wrap(
                 FLOAT_RECEIVER_CLASS,
                 wrapper_ptr,
-                Some(std::mem::transmute(float_receiver_mark),
-                Some(std::mem::transmute(float_receiver_free),
+                Some(float_receiver_mark),
+                Some(float_receiver_free),
             )
         }
         Err(e) => {
@@ -351,14 +351,14 @@ unsafe extern "C" fn integer_sender_new(_klass: VALUE, capacity_val: VALUE) -> V
     match Sender::new(capacity) {
         Ok(sender) => {
             let wrapper = Box::new(IntegerSenderWrapper {
-                sender: Some(std::mem::transmute(sender),
+                sender: Some(sender),
             });
             let wrapper_ptr = Box::into_raw(wrapper) as *mut c_void;
             rb_data_object_wrap(
                 INTEGER_SENDER_CLASS,
                 wrapper_ptr,
-                Some(std::mem::transmute(integer_sender_mark),
-                Some(std::mem::transmute(integer_sender_free),
+                Some(integer_sender_mark),
+                Some(integer_sender_free),
             )
         }
         Err(e) => {
@@ -382,14 +382,14 @@ unsafe extern "C" fn integer_sender_open(_klass: VALUE, capacity_val: VALUE, mem
     match Sender::open(capacity, memfd, empty_signal, full_signal) {
         Ok(sender) => {
             let wrapper = Box::new(IntegerSenderWrapper {
-                sender: Some(std::mem::transmute(sender),
+                sender: Some(sender),
             });
             let wrapper_ptr = Box::into_raw(wrapper) as *mut c_void;
             rb_data_object_wrap(
                 INTEGER_SENDER_CLASS,
                 wrapper_ptr,
-                Some(std::mem::transmute(integer_sender_mark),
-                Some(std::mem::transmute(integer_sender_free),
+                Some(integer_sender_mark),
+                Some(integer_sender_free),
             )
         }
         Err(e) => {
@@ -472,14 +472,14 @@ unsafe extern "C" fn integer_receiver_new(_klass: VALUE, capacity_val: VALUE) ->
     match Receiver::new(capacity) {
         Ok(receiver) => {
             let wrapper = Box::new(IntegerReceiverWrapper {
-                receiver: Some(std::mem::transmute(receiver),
+                receiver: Some(receiver),
             });
             let wrapper_ptr = Box::into_raw(wrapper) as *mut c_void;
             rb_data_object_wrap(
                 INTEGER_RECEIVER_CLASS,
                 wrapper_ptr,
-                Some(std::mem::transmute(integer_receiver_mark),
-                Some(std::mem::transmute(integer_receiver_free),
+                Some(integer_receiver_mark),
+                Some(integer_receiver_free),
             )
         }
         Err(e) => {
@@ -503,14 +503,14 @@ unsafe extern "C" fn integer_receiver_open(_klass: VALUE, capacity_val: VALUE, m
     match Receiver::open(capacity, memfd, empty_signal, full_signal) {
         Ok(receiver) => {
             let wrapper = Box::new(IntegerReceiverWrapper {
-                receiver: Some(std::mem::transmute(receiver),
+                receiver: Some(receiver),
             });
             let wrapper_ptr = Box::into_raw(wrapper) as *mut c_void;
             rb_data_object_wrap(
                 INTEGER_RECEIVER_CLASS,
                 wrapper_ptr,
-                Some(std::mem::transmute(integer_receiver_mark),
-                Some(std::mem::transmute(integer_receiver_free),
+                Some(integer_receiver_mark),
+                Some(integer_receiver_free),
             )
         }
         Err(e) => {
@@ -585,14 +585,14 @@ unsafe extern "C" fn byte_sender_new(_klass: VALUE, capacity_val: VALUE) -> VALU
     match Sender::new(capacity) {
         Ok(sender) => {
             let wrapper = Box::new(ByteSenderWrapper {
-                sender: Some(std::mem::transmute(sender),
+                sender: Some(sender),
             });
             let wrapper_ptr = Box::into_raw(wrapper) as *mut c_void;
             rb_data_object_wrap(
                 BYTE_SENDER_CLASS,
                 wrapper_ptr,
-                Some(std::mem::transmute(byte_sender_mark),
-                Some(std::mem::transmute(byte_sender_free),
+                Some(byte_sender_mark),
+                Some(byte_sender_free),
             )
         }
         Err(e) => {
@@ -616,14 +616,14 @@ unsafe extern "C" fn byte_sender_open(_klass: VALUE, capacity_val: VALUE, memfd_
     match Sender::open(capacity, memfd, empty_signal, full_signal) {
         Ok(sender) => {
             let wrapper = Box::new(ByteSenderWrapper {
-                sender: Some(std::mem::transmute(sender),
+                sender: Some(sender),
             });
             let wrapper_ptr = Box::into_raw(wrapper) as *mut c_void;
             rb_data_object_wrap(
                 BYTE_SENDER_CLASS,
                 wrapper_ptr,
-                Some(std::mem::transmute(byte_sender_mark),
-                Some(std::mem::transmute(byte_sender_free),
+                Some(byte_sender_mark),
+                Some(byte_sender_free),
             )
         }
         Err(e) => {
@@ -713,14 +713,14 @@ unsafe extern "C" fn byte_receiver_new(_klass: VALUE, capacity_val: VALUE) -> VA
     match Receiver::new(capacity) {
         Ok(receiver) => {
             let wrapper = Box::new(ByteReceiverWrapper {
-                receiver: Some(std::mem::transmute(receiver),
+                receiver: Some(receiver),
             });
             let wrapper_ptr = Box::into_raw(wrapper) as *mut c_void;
             rb_data_object_wrap(
                 BYTE_RECEIVER_CLASS,
                 wrapper_ptr,
-                Some(std::mem::transmute(byte_receiver_mark),
-                Some(std::mem::transmute(byte_receiver_free),
+                Some(byte_receiver_mark),
+                Some(byte_receiver_free),
             )
         }
         Err(e) => {
@@ -744,14 +744,14 @@ unsafe extern "C" fn byte_receiver_open(_klass: VALUE, capacity_val: VALUE, memf
     match Receiver::open(capacity, memfd, empty_signal, full_signal) {
         Ok(receiver) => {
             let wrapper = Box::new(ByteReceiverWrapper {
-                receiver: Some(std::mem::transmute(receiver),
+                receiver: Some(receiver),
             });
             let wrapper_ptr = Box::into_raw(wrapper) as *mut c_void;
             rb_data_object_wrap(
                 BYTE_RECEIVER_CLASS,
                 wrapper_ptr,
-                Some(std::mem::transmute(byte_receiver_mark),
-                Some(std::mem::transmute(byte_receiver_free),
+                Some(byte_receiver_mark),
+                Some(byte_receiver_free),
             )
         }
         Err(e) => {
@@ -824,43 +824,43 @@ pub unsafe extern "C" fn Init_shmem_ipc() {
     
     // Define FloatSender class
     FLOAT_SENDER_CLASS = rb_define_class_under(SHMEM_IPC_MODULE, b"FloatSender\0".as_ptr() as *const i8, rb_cObject);
-    rb_define_singleton_method(FLOAT_SENDER_CLASS, b"new\0".as_ptr() as *const i8, Some(std::mem::transmute(std::mem::transmute(float_sender_new as *const ())), 1);
-    rb_define_singleton_method(FLOAT_SENDER_CLASS, b"open\0".as_ptr() as *const i8, Some(std::mem::transmute(float_sender_open as *const ())), 4);
-    rb_define_method(FLOAT_SENDER_CLASS, b"get_fds\0".as_ptr() as *const i8, Some(std::mem::transmute(float_sender_get_fds as *const ())), 0);
-    rb_define_method(FLOAT_SENDER_CLASS, b"send_data\0".as_ptr() as *const i8, Some(std::mem::transmute(float_sender_send_data as *const ())), 1);
+    rb_define_singleton_method(FLOAT_SENDER_CLASS, b"new\0".as_ptr() as *const i8, Some(std::mem::transmute::<unsafe extern "C" fn(VALUE, VALUE) -> VALUE, unsafe extern "C" fn() -> VALUE>(float_sender_new)), 1);
+    rb_define_singleton_method(FLOAT_SENDER_CLASS, b"open\0".as_ptr() as *const i8, Some(std::mem::transmute::<unsafe extern "C" fn(VALUE, VALUE, VALUE, VALUE, VALUE) -> VALUE, unsafe extern "C" fn() -> VALUE>(float_sender_open)), 4);
+    rb_define_method(FLOAT_SENDER_CLASS, b"get_fds\0".as_ptr() as *const i8, Some(std::mem::transmute::<unsafe extern "C" fn(VALUE) -> VALUE, unsafe extern "C" fn() -> VALUE>(float_sender_get_fds)), 0);
+    rb_define_method(FLOAT_SENDER_CLASS, b"send_data\0".as_ptr() as *const i8, Some(std::mem::transmute::<unsafe extern "C" fn(VALUE, VALUE) -> VALUE, unsafe extern "C" fn() -> VALUE>(float_sender_send_data)), 1);
     
     // Define FloatReceiver class
     FLOAT_RECEIVER_CLASS = rb_define_class_under(SHMEM_IPC_MODULE, b"FloatReceiver\0".as_ptr() as *const i8, rb_cObject);
-    rb_define_singleton_method(FLOAT_RECEIVER_CLASS, b"new\0".as_ptr() as *const i8, Some(std::mem::transmute(float_receiver_new as *const ())), 1);
-    rb_define_singleton_method(FLOAT_RECEIVER_CLASS, b"open\0".as_ptr() as *const i8, Some(std::mem::transmute(float_receiver_open as *const ())), 4);
-    rb_define_method(FLOAT_RECEIVER_CLASS, b"get_fds\0".as_ptr() as *const i8, Some(std::mem::transmute(float_receiver_get_fds as *const ())), 0);
-    rb_define_method(FLOAT_RECEIVER_CLASS, b"receive_data\0".as_ptr() as *const i8, Some(std::mem::transmute(float_receiver_receive_data as *const ())), 0);
+    rb_define_singleton_method(FLOAT_RECEIVER_CLASS, b"new\0".as_ptr() as *const i8, Some(std::mem::transmute::<unsafe extern "C" fn(VALUE, VALUE) -> VALUE, unsafe extern "C" fn() -> VALUE>(float_receiver_new)), 1);
+    rb_define_singleton_method(FLOAT_RECEIVER_CLASS, b"open\0".as_ptr() as *const i8, Some(std::mem::transmute::<unsafe extern "C" fn(VALUE, VALUE, VALUE, VALUE, VALUE) -> VALUE, unsafe extern "C" fn() -> VALUE>(float_receiver_open)), 4);
+    rb_define_method(FLOAT_RECEIVER_CLASS, b"get_fds\0".as_ptr() as *const i8, Some(std::mem::transmute::<unsafe extern "C" fn(VALUE) -> VALUE, unsafe extern "C" fn() -> VALUE>(float_receiver_get_fds)), 0);
+    rb_define_method(FLOAT_RECEIVER_CLASS, b"receive_data\0".as_ptr() as *const i8, Some(std::mem::transmute::<unsafe extern "C" fn(VALUE) -> VALUE, unsafe extern "C" fn() -> VALUE>(float_receiver_receive_data)), 0);
     
     // Define IntegerSender class
     INTEGER_SENDER_CLASS = rb_define_class_under(SHMEM_IPC_MODULE, b"IntegerSender\0".as_ptr() as *const i8, rb_cObject);
-    rb_define_singleton_method(INTEGER_SENDER_CLASS, b"new\0".as_ptr() as *const i8, Some(std::mem::transmute(integer_sender_new as *const ())), 1);
-    rb_define_singleton_method(INTEGER_SENDER_CLASS, b"open\0".as_ptr() as *const i8, Some(std::mem::transmute(integer_sender_open as *const ())), 4);
-    rb_define_method(INTEGER_SENDER_CLASS, b"get_fds\0".as_ptr() as *const i8, Some(std::mem::transmute(integer_sender_get_fds as *const ())), 0);
-    rb_define_method(INTEGER_SENDER_CLASS, b"send_data\0".as_ptr() as *const i8, Some(std::mem::transmute(integer_sender_send_data as *const ())), 1);
+    rb_define_singleton_method(INTEGER_SENDER_CLASS, b"new\0".as_ptr() as *const i8, Some(std::mem::transmute::<unsafe extern "C" fn(VALUE, VALUE) -> VALUE, unsafe extern "C" fn() -> VALUE>(integer_sender_new)), 1);
+    rb_define_singleton_method(INTEGER_SENDER_CLASS, b"open\0".as_ptr() as *const i8, Some(std::mem::transmute::<unsafe extern "C" fn(VALUE, VALUE, VALUE, VALUE, VALUE) -> VALUE, unsafe extern "C" fn() -> VALUE>(integer_sender_open)), 4);
+    rb_define_method(INTEGER_SENDER_CLASS, b"get_fds\0".as_ptr() as *const i8, Some(std::mem::transmute::<unsafe extern "C" fn(VALUE) -> VALUE, unsafe extern "C" fn() -> VALUE>(integer_sender_get_fds)), 0);
+    rb_define_method(INTEGER_SENDER_CLASS, b"send_data\0".as_ptr() as *const i8, Some(std::mem::transmute::<unsafe extern "C" fn(VALUE, VALUE) -> VALUE, unsafe extern "C" fn() -> VALUE>(integer_sender_send_data)), 1);
     
     // Define IntegerReceiver class
     INTEGER_RECEIVER_CLASS = rb_define_class_under(SHMEM_IPC_MODULE, b"IntegerReceiver\0".as_ptr() as *const i8, rb_cObject);
-    rb_define_singleton_method(INTEGER_RECEIVER_CLASS, b"new\0".as_ptr() as *const i8, Some(std::mem::transmute(integer_receiver_new as *const ())), 1);
-    rb_define_singleton_method(INTEGER_RECEIVER_CLASS, b"open\0".as_ptr() as *const i8, Some(std::mem::transmute(integer_receiver_open as *const ())), 4);
-    rb_define_method(INTEGER_RECEIVER_CLASS, b"get_fds\0".as_ptr() as *const i8, Some(std::mem::transmute(integer_receiver_get_fds as *const ())), 0);
-    rb_define_method(INTEGER_RECEIVER_CLASS, b"receive_data\0".as_ptr() as *const i8, Some(std::mem::transmute(integer_receiver_receive_data as *const ())), 0);
+    rb_define_singleton_method(INTEGER_RECEIVER_CLASS, b"new\0".as_ptr() as *const i8, Some(std::mem::transmute::<unsafe extern "C" fn(VALUE, VALUE) -> VALUE, unsafe extern "C" fn() -> VALUE>(integer_receiver_new)), 1);
+    rb_define_singleton_method(INTEGER_RECEIVER_CLASS, b"open\0".as_ptr() as *const i8, Some(std::mem::transmute::<unsafe extern "C" fn(VALUE, VALUE, VALUE, VALUE, VALUE) -> VALUE, unsafe extern "C" fn() -> VALUE>(integer_receiver_open)), 4);
+    rb_define_method(INTEGER_RECEIVER_CLASS, b"get_fds\0".as_ptr() as *const i8, Some(std::mem::transmute::<unsafe extern "C" fn(VALUE) -> VALUE, unsafe extern "C" fn() -> VALUE>(integer_receiver_get_fds)), 0);
+    rb_define_method(INTEGER_RECEIVER_CLASS, b"receive_data\0".as_ptr() as *const i8, Some(std::mem::transmute::<unsafe extern "C" fn(VALUE) -> VALUE, unsafe extern "C" fn() -> VALUE>(integer_receiver_receive_data)), 0);
     
     // Define ByteSender class
     BYTE_SENDER_CLASS = rb_define_class_under(SHMEM_IPC_MODULE, b"ByteSender\0".as_ptr() as *const i8, rb_cObject);
-    rb_define_singleton_method(BYTE_SENDER_CLASS, b"new\0".as_ptr() as *const i8, Some(std::mem::transmute(byte_sender_new as *const ())), 1);
-    rb_define_singleton_method(BYTE_SENDER_CLASS, b"open\0".as_ptr() as *const i8, Some(std::mem::transmute(byte_sender_open as *const ())), 4);
-    rb_define_method(BYTE_SENDER_CLASS, b"get_fds\0".as_ptr() as *const i8, Some(std::mem::transmute(byte_sender_get_fds as *const ())), 0);
-    rb_define_method(BYTE_SENDER_CLASS, b"send_data\0".as_ptr() as *const i8, Some(std::mem::transmute(byte_sender_send_data as *const ())), 1);
+    rb_define_singleton_method(BYTE_SENDER_CLASS, b"new\0".as_ptr() as *const i8, Some(std::mem::transmute::<unsafe extern "C" fn(VALUE, VALUE) -> VALUE, unsafe extern "C" fn() -> VALUE>(byte_sender_new)), 1);
+    rb_define_singleton_method(BYTE_SENDER_CLASS, b"open\0".as_ptr() as *const i8, Some(std::mem::transmute::<unsafe extern "C" fn(VALUE, VALUE, VALUE, VALUE, VALUE) -> VALUE, unsafe extern "C" fn() -> VALUE>(byte_sender_open)), 4);
+    rb_define_method(BYTE_SENDER_CLASS, b"get_fds\0".as_ptr() as *const i8, Some(std::mem::transmute::<unsafe extern "C" fn(VALUE) -> VALUE, unsafe extern "C" fn() -> VALUE>(byte_sender_get_fds)), 0);
+    rb_define_method(BYTE_SENDER_CLASS, b"send_data\0".as_ptr() as *const i8, Some(std::mem::transmute::<unsafe extern "C" fn(VALUE, VALUE) -> VALUE, unsafe extern "C" fn() -> VALUE>(byte_sender_send_data)), 1);
     
     // Define ByteReceiver class
     BYTE_RECEIVER_CLASS = rb_define_class_under(SHMEM_IPC_MODULE, b"ByteReceiver\0".as_ptr() as *const i8, rb_cObject);
-    rb_define_singleton_method(BYTE_RECEIVER_CLASS, b"new\0".as_ptr() as *const i8, Some(std::mem::transmute(byte_receiver_new as *const ())), 1);
-    rb_define_singleton_method(BYTE_RECEIVER_CLASS, b"open\0".as_ptr() as *const i8, Some(std::mem::transmute(byte_receiver_open as *const ())), 4);
-    rb_define_method(BYTE_RECEIVER_CLASS, b"get_fds\0".as_ptr() as *const i8, Some(std::mem::transmute(byte_receiver_get_fds as *const ())), 0);
-    rb_define_method(BYTE_RECEIVER_CLASS, b"receive_data\0".as_ptr() as *const i8, Some(std::mem::transmute(byte_receiver_receive_data as *const ())), 0);
+    rb_define_singleton_method(BYTE_RECEIVER_CLASS, b"new\0".as_ptr() as *const i8, Some(std::mem::transmute::<unsafe extern "C" fn(VALUE, VALUE) -> VALUE, unsafe extern "C" fn() -> VALUE>(byte_receiver_new)), 1);
+    rb_define_singleton_method(BYTE_RECEIVER_CLASS, b"open\0".as_ptr() as *const i8, Some(std::mem::transmute::<unsafe extern "C" fn(VALUE, VALUE, VALUE, VALUE, VALUE) -> VALUE, unsafe extern "C" fn() -> VALUE>(byte_receiver_open)), 4);
+    rb_define_method(BYTE_RECEIVER_CLASS, b"get_fds\0".as_ptr() as *const i8, Some(std::mem::transmute::<unsafe extern "C" fn(VALUE) -> VALUE, unsafe extern "C" fn() -> VALUE>(byte_receiver_get_fds)), 0);
+    rb_define_method(BYTE_RECEIVER_CLASS, b"receive_data\0".as_ptr() as *const i8, Some(std::mem::transmute::<unsafe extern "C" fn(VALUE) -> VALUE, unsafe extern "C" fn() -> VALUE>(byte_receiver_receive_data)), 0);
 }
